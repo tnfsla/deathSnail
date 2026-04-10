@@ -1,11 +1,16 @@
 import { create } from 'zustand';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { User, Snail, NearbySnail } from 'shared';
+
+const TOKEN_KEY = '@deathsnail/token';
 
 interface GameStore {
   token: string | null;
   user: User | null;
   snail: Snail | null;
   nearbySnails: NearbySnail[];
+  isBootstrapping: boolean; // 앱 시작 시 AsyncStorage에서 토큰 로드 중
+  isDead: boolean;          // 달팽이에게 잡혔는지
 
   setToken: (token: string | null) => void;
   setUser: (user: User | null) => void;
@@ -13,19 +18,32 @@ interface GameStore {
   setNearbySnails: (snails: NearbySnail[]) => void;
   updateNearbySnail: (snail: NearbySnail) => void;
   removeNearbySnail: (snailId: string) => void;
+  setDead: (isDead: boolean) => void;
   logout: () => void;
+  bootstrap: () => Promise<void>;
 }
 
-export const useGameStore = create<GameStore>((set) => ({
+export const useGameStore = create<GameStore>((set, get) => ({
   token: null,
   user: null,
   snail: null,
   nearbySnails: [],
+  isBootstrapping: true,
+  isDead: false,
 
-  setToken: (token) => set({ token }),
+  setToken: async (token) => {
+    if (token) {
+      await AsyncStorage.setItem(TOKEN_KEY, token);
+    } else {
+      await AsyncStorage.removeItem(TOKEN_KEY);
+    }
+    set({ token });
+  },
+
   setUser: (user) => set({ user }),
   setSnail: (snail) => set({ snail }),
   setNearbySnails: (nearbySnails) => set({ nearbySnails }),
+  setDead: (isDead) => set({ isDead }),
 
   updateNearbySnail: (snail) =>
     set((state) => {
@@ -45,5 +63,22 @@ export const useGameStore = create<GameStore>((set) => ({
       nearbySnails: state.nearbySnails.filter((s) => s.snailId !== snailId),
     })),
 
-  logout: () => set({ token: null, user: null, snail: null, nearbySnails: [] }),
+  logout: async () => {
+    await AsyncStorage.removeItem(TOKEN_KEY);
+    set({ token: null, user: null, snail: null, nearbySnails: [], isDead: false });
+  },
+
+  // 앱 시작 시 저장된 토큰 복구
+  bootstrap: async () => {
+    try {
+      const savedToken = await AsyncStorage.getItem(TOKEN_KEY);
+      if (savedToken) {
+        set({ token: savedToken });
+      }
+    } catch {
+      // 토큰 복구 실패 시 로그인 화면으로
+    } finally {
+      set({ isBootstrapping: false });
+    }
+  },
 }));

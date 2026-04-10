@@ -21,19 +21,19 @@
 
 ---
 
-## Phase 1 - 핵심 게임루프 (다음 작업)
+## Phase 1 - 핵심 게임루프 ✅ (완료)
 
 > **목표**: "달팽이가 매일 나를 향해 움직인다"
 
-- [ ] `pnpm install` 실행 확인 및 의존성 설치 안내
-- [ ] Expo Location 권한 흐름 완성 (GPS 권한 → 위치 공유)
-- [ ] `POST /players/location` 연동 테스트
-- [ ] BullMQ 수동 트리거 `/admin/trigger-movement` 테스트
-- [ ] 지도에 달팽이 마커 표시 + 이동 궤적 폴리라인
-- [ ] 게임오버 판정 UI (달팽이 도달 시 화면)
-- [ ] Expo Push Notification 등록 및 토큰 저장
-- [ ] 기본 푸시 알림 (daily_moved 메시지)
-- [ ] 달팽이 여행 일지 탭 완성 (현재 국가/지역/랜드마크)
+- [x] Auth persistence: AsyncStorage에 JWT 저장, 앱 재시작 시 복구
+- [x] `PUT /users/push-token` 엔드포인트 + 앱 시작 시 Expo 푸시 토큰 등록
+- [x] `useSnailData` hook: 60초 폴링 + 포그라운드 복귀 시 즉시 갱신
+- [x] `useLocation` hook: 싱글턴 패턴, 500m 이동마다 서버 위치 업데이트
+- [x] 게임오버 화면 (`/dead`): 생존일수, 묘비명, 재시작 버튼
+- [x] Socket.io 서버: JWT 인증 미들웨어, 개인 룸 (`user:userId`), Geohash 8방향 인접 셀
+- [x] Socket.io 클라이언트: `game:over` → `isDead` 플래그 → 죽음 화면 자동 이동
+- [x] 지도 화면: 실시간 달팽이 위치 (30초 보간), 공황 모드 (10km 이내 붉은 색조)
+- [x] 달팽이 마커 + 이동 궤적 폴리라인 + 주변 달팽이 마커 + 버프 UI
 
 ---
 

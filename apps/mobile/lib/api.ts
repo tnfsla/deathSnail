@@ -52,6 +52,12 @@ export const api = {
       body: JSON.stringify({ targetSnailId }),
     }),
 
+  savePushToken: (pushToken: string) =>
+    request<void>('/users/push-token', {
+      method: 'PUT',
+      body: JSON.stringify({ pushToken }),
+    }),
+
   getAchievements: () => request<Achievement[]>('/achievements/mine'),
 
   getLeaderboard: () => request<LeaderboardEntry[]>('/leaderboard/survivors'),

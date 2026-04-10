@@ -6,6 +6,7 @@ import { createServer } from 'http';
 import { Server as SocketIOServer } from 'socket.io';
 import { redis } from './lib/redis';
 import { authRoutes } from './routes/auth';
+import { userRoutes } from './routes/users';
 import { snailRoutes } from './routes/snails';
 import { buffRoutes } from './routes/buffs';
 import { playerRoutes } from './routes/players';
@@ -37,6 +38,7 @@ async function main() {
 
   // 라우트 등록
   await app.register(authRoutes, { prefix: '/auth' });
+  await app.register(userRoutes, { prefix: '/users' });
   await app.register(snailRoutes, { prefix: '/snails' });
   await app.register(buffRoutes, { prefix: '/buffs' });
   await app.register(playerRoutes, { prefix: '/players' });
