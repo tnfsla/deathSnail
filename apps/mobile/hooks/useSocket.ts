@@ -30,6 +30,21 @@ export function useSocket() {
   const { location } = useLocation();
   const prevGeohashRef = useRef<string | null>(null);
 
+  // 소켓 연결 생명주기: 로그인 시 유지, 로그아웃/언마운트 시 종료
+  // location 변경에 반응하지 않으므로 위치 업데이트마다 재연결되지 않음
+  useEffect(() => {
+    if (!token) {
+      disconnectSocket();
+      prevGeohashRef.current = null;
+    }
+    return () => {
+      disconnectSocket();
+      prevGeohashRef.current = null;
+    };
+  }, [token]);
+
+  // Geohash 구독: 위치가 바뀌어 다른 geohash 셀로 진입했을 때만 재구독
+  // cleanup 없음 → 위치 업데이트마다 소켓이 끊기지 않음
   useEffect(() => {
     if (!token || !location) return;
 
@@ -38,15 +53,9 @@ export function useSocket() {
       location.coords.longitude
     );
 
-    // geohash가 바뀔 때만 재구독 (500m 이상 이동해야 바뀜)
     if (geohash === prevGeohashRef.current) return;
     prevGeohashRef.current = geohash;
 
     connectSocket(geohash);
-
-    return () => {
-      disconnectSocket();
-      prevGeohashRef.current = null;
-    };
   }, [token, location]);
 }

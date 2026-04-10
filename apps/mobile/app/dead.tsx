@@ -5,7 +5,7 @@ import { api } from '@/lib/api';
 import { useEffect, useState } from 'react';
 
 export default function DeadScreen() {
-  const { snail, user, logout, setDead } = useGameStore();
+  const { snail, user, logout } = useGameStore();
   const [survivalDays, setSurvivalDays] = useState(0);
   const [showRestart, setShowRestart] = useState(false);
 
@@ -21,11 +21,9 @@ export default function DeadScreen() {
     return () => clearTimeout(t);
   }, []);
 
-  const handleRestart = async () => {
-    // 새 달팽이 생성 = 로그아웃 후 다시 가입
-    // 현재 유저는 죽은 상태이므로 새 계정 필요
-    await logout();
-    setDead(false);
+  const handleRestart = () => {
+    // logout()은 동기 함수이며 isDead: false 포함 초기화
+    logout();
     router.replace('/(auth)');
   };
 

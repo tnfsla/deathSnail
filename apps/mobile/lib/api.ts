@@ -19,7 +19,8 @@ async function request<T>(
 
   if (!res.ok) {
     const err = await res.json().catch(() => ({ message: '요청에 실패했습니다.' }));
-    throw new Error(err.message ?? '요청에 실패했습니다.');
+    const message = err.message ?? '요청에 실패했습니다.';
+    throw Object.assign(new Error(message), { status: res.status });
   }
 
   // 204 No Content는 body가 없으므로 json() 호출 금지

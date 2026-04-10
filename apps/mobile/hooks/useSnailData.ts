@@ -22,8 +22,8 @@ export function useSnailData() {
       const snail = await api.getMySnail();
       setSnail(snail);
     } catch (err: any) {
-      // 401 → 토큰 만료 (로그아웃 처리는 별도)
-      if (err?.message?.includes('401')) {
+      // 401 → 토큰 만료
+      if (err?.status === 401) {
         useGameStore.getState().logout();
       }
     }
