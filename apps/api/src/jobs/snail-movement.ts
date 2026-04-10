@@ -13,12 +13,14 @@ const BATCH_SIZE = 500;
 const movementQueue = new Queue(MOVEMENT_QUEUE_NAME, { connection: redis });
 
 export function startDailyMovementJob() {
-  // 매일 자정 UTC 실행
+  // jobId를 고정하면 서버 재시작마다 중복 잡이 쌓이지 않음
+  // BullMQ는 동일 (name + repeat.pattern + jobId) 조합을 dedup
   movementQueue.add(
     'daily-tick',
     {},
     {
-      repeat: { pattern: '0 0 * * *' }, // cron: 매일 00:00 UTC
+      jobId: 'snail-daily-movement-singleton',
+      repeat: { pattern: '0 0 * * *' }, // 매일 00:00 UTC
     }
   );
 

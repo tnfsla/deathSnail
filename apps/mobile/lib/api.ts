@@ -22,6 +22,9 @@ async function request<T>(
     throw new Error(err.message ?? '요청에 실패했습니다.');
   }
 
+  // 204 No Content는 body가 없으므로 json() 호출 금지
+  if (res.status === 204) return undefined as T;
+
   return res.json();
 }
 

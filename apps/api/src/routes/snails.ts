@@ -30,12 +30,13 @@ export async function snailRoutes(app: FastifyInstance) {
       return reply.status(404).send({ message: '달팽이를 찾을 수 없습니다.' });
     }
 
-    const distanceKm = snail.owner.lastLat != null
-      ? haversineDistance(
-          snail.currentLat, snail.currentLng,
-          snail.owner.lastLat, snail.owner.lastLng
-        )
-      : 0;
+    const distanceKm =
+      snail.owner.lastLat != null && snail.owner.lastLng != null
+        ? haversineDistance(
+            snail.currentLat, snail.currentLng,
+            snail.owner.lastLat, snail.owner.lastLng
+          )
+        : 0;
 
     // 현재 날짜 인덱스 (spawn 후 몇 일차)
     const dayNumber = Math.floor(

@@ -27,6 +27,11 @@ export function haversineDistance(
  * 하루 이동 중 경과된 시간 비율에 따라 현재 위치 추정
  */
 export function interpolateSnailPosition(snail: Snail): { lat: number; lng: number } {
+  // targetLat/Lng가 0,0이면 아직 유저 위치 미공유 → 현재 위치 그대로 반환
+  if (snail.targetLat === 0 && snail.targetLng === 0) {
+    return { lat: snail.currentLat, lng: snail.currentLng };
+  }
+
   const now = Date.now();
   const todayMidnightUTC = new Date();
   todayMidnightUTC.setUTCHours(0, 0, 0, 0);

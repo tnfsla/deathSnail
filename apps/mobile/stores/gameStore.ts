@@ -19,8 +19,8 @@ interface GameStore {
   updateNearbySnail: (snail: NearbySnail) => void;
   removeNearbySnail: (snailId: string) => void;
   setDead: (isDead: boolean) => void;
-  logout: () => void;
-  bootstrap: () => Promise<void>;
+  logout: () => void;         // 동기: 상태 즉시 초기화, AsyncStorage는 fire-and-forget
+  bootstrap: () => Promise<void>; // 앱 시작 시 1회
 }
 
 export const useGameStore = create<GameStore>((set, get) => ({
@@ -31,13 +31,15 @@ export const useGameStore = create<GameStore>((set, get) => ({
   isBootstrapping: true,
   isDead: false,
 
-  setToken: async (token) => {
-    if (token) {
-      await AsyncStorage.setItem(TOKEN_KEY, token);
-    } else {
-      await AsyncStorage.removeItem(TOKEN_KEY);
-    }
+  setToken: (token) => {
+    // 상태는 즉시 업데이트 (라우터 분기가 바로 반응하도록)
     set({ token });
+    // AsyncStorage는 백그라운드에서 비동기 저장
+    if (token) {
+      AsyncStorage.setItem(TOKEN_KEY, token).catch(() => {});
+    } else {
+      AsyncStorage.removeItem(TOKEN_KEY).catch(() => {});
+    }
   },
 
   setUser: (user) => set({ user }),
@@ -63,8 +65,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
       nearbySnails: state.nearbySnails.filter((s) => s.snailId !== snailId),
     })),
 
-  logout: async () => {
-    await AsyncStorage.removeItem(TOKEN_KEY);
+  logout: () => {
+    AsyncStorage.removeItem(TOKEN_KEY).catch(() => {});
     set({ token: null, user: null, snail: null, nearbySnails: [], isDead: false });
   },
 

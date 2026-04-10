@@ -31,14 +31,20 @@ async function registerForPushNotifications(): Promise<string | null> {
 
   if (finalStatus !== 'granted') return null;
 
-  const projectId =
+  // projectId는 EAS 빌드 시 자동 주입됨. 개발 환경에서는 없을 수 있어 옵셔널로 처리
+  const projectId: string | undefined =
     Constants.expoConfig?.extra?.eas?.projectId ??
-    Constants.easConfig?.projectId;
+    Constants.expoConfig?.extra?.projectId;
 
-  if (!projectId) return null;
-
-  const { data: token } = await Notifications.getExpoPushTokenAsync({ projectId });
-  return token;
+  try {
+    const { data: token } = await Notifications.getExpoPushTokenAsync(
+      projectId ? { projectId } : undefined
+    );
+    return token;
+  } catch {
+    // 개발 환경 또는 projectId 미설정 시 조용히 실패
+    return null;
+  }
 }
 
 export default function RootLayout() {
